@@ -1,0 +1,44 @@
+#!/bin/bash -e
+#
+# S2I assemble script for the 'mytomcatimage' image.
+# The 'assemble' script builds your application source so that it is ready to run.
+#
+# For more information refer to the documentation:
+#	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
+#
+
+if [[ "$1" == "-h" ]]; then
+	# If the 'mytomcatimage' assemble script is executed with '-h' flag,
+	# print the usage.
+	exec /usr/libexec/s2i/usage
+fi
+
+# Restore artifacts from the previous build (if they exist).
+#
+if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
+  echo "---> Restoring build artifacts..."
+  mv /tmp/artifacts/. ./
+fi
+
+
+LOCAL_SOURCE_DIR=${HOME}
+mkdir -p $LOCAL_SOURCE_DIR
+DEPLOY_DIR=/opt/apache-tomcat-7.0.78/webapps
+
+
+echo "---> Installing application source..."
+cp -Rf /tmp/src/. ./
+
+echo "---> Building application from source..."
+# TODO: Add build steps for your application, eg npm install, bundle install
+##cd $LOCAL_SOURCE_DIR
+if [ -f $LOCAL_SOURCE_DIR/configuration/settings.xml ]; then
+  echo "Copying maven config file from project..."
+  mkdir -p $HOME/.m2
+  mv $LOCAL_SOURCE_DIR/configuration/settings.xml $HOME/.m2
+fi
+
+mvn package
+echo "---> copying war file "
+cp target/*.war /opt/apache-tomcat-7.0.78/webapps/
+##cp target/*.war $DEOLOY_DIR
