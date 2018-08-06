@@ -31,7 +31,8 @@ RUN yum install -y maven.noarch && yum clean all -y
 COPY ./.s2i/bin/ /usr/local/s2i
 ##Reuired so that it can be run on openshift without anyuid privilege.
 RUN chgrp -R 0 /opt/apache-tomcat-7.0.78 && chmod -R g+rwX /opt/apache-tomcat-7.0.78
-
+# chmod -R g=u directory 
+# The g=u argument from the chmod command makes the group permissions equals to the owner user permissions, which by default are read and write. You can use the g+rwX argument with the same results.
 # TODO: Drop the root user and make the content of /opt/app-root owned by user 1001
 # RUN chown -R 1001:1001 /opt/app-root
  RUN chown -R 1001 /opt/apache-tomcat-7.0.78 && chmod -R +rwx /opt/apache-tomcat-7.0.78/ 
